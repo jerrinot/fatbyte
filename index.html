@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAR Bytecode Analyzer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #bdc3c7;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: #3498db;
+            background: #f8fafc;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #2ecc71;
+            background: #e8f8f5;
+        }
+
+        .drop-zone-text {
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+
+        .drop-zone-text .icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone input[type="file"] {
+            display: none;
+        }
+
+        .stats {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .stats.visible {
+            display: block;
+        }
+
+        .stats span {
+            margin-right: 20px;
+        }
+
+        .progress-container {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .progress-container.visible {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 8px;
+        }
+
+        .results {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .results-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .results-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .results-controls select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .results-controls button {
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .results-controls button:hover {
+            background: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        td.rank {
+            width: 50px;
+            color: #95a5a6;
+            font-weight: 600;
+        }
+
+        td.class-name {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        td.method-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        td.descriptor {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        td.size {
+            text-align: right;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-weight: 600;
+            color: #e74c3c;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .error {
+            background: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error.visible {
+            display: block;
+        }
+
+        .warnings {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .warnings.visible {
+            display: block;
+        }
+
+        .warnings h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+
+        .warnings ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .no-results {
+            padding: 40px 20px;
+            text-align: center;
+            color: #95a5a6;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            td.descriptor {
+                display: none;
+            }
+
+            td.class-name {
+                max-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>JAR Bytecode Analyzer</h1>
+
+    <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-text">
+            <span class="icon">&#128230;</span>
+            Drop JAR file here or click to browse
+        </div>
+        <input type="file" id="fileInput" accept=".jar">
+    </div>
+
+    <div class="error" id="errorDisplay"></div>
+
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Processing...</div>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        <span id="classCount"></span>
+        <span id="methodCount"></span>
+        <span id="parseTime"></span>
+    </div>
+
+    <div class="warnings" id="warningsDisplay">
+        <h3>Warnings</h3>
+        <ul id="warningsList"></ul>
+    </div>
+
+    <div class="results" id="resultsContainer">
+        <div class="results-header">
+            <h2>Top Methods by Bytecode Size</h2>
+            <div class="results-controls">
+                <label>Show top:
+                    <select id="topNSelect">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </label>
+                <button id="exportBtn">Export CSV</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Class</th>
+                    <th>Method</th>
+                    <th>Descriptor</th>
+                    <th style="text-align: right">Size (bytes)</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+            </tbody>
+        </table>
+        <div class="no-results" id="noResults" style="display: none;">
+            No methods found
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // =====================================================================
+        // Class File Parser (inlined for single-file distribution)
+        // =====================================================================
+
+        const MAGIC = 0xCAFEBABE;
+
+        function parseClassFile(buffer) {
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            const magic = view.getUint32(offset, false);
+            offset += 4;
+
+            if (magic !== MAGIC) {
+                throw new Error(`Invalid class file: expected magic number 0xCAFEBABE, got 0x${magic.toString(16).toUpperCase()}`);
+            }
+
+            const minorVersion = view.getUint16(offset, false);
+            offset += 2;
+            const majorVersion = view.getUint16(offset, false);
+            offset += 2;
+
+            const { constantPool, newOffset } = parseConstantPool(view, offset);
+            offset = newOffset;
+
+            const accessFlags = view.getUint16(offset, false);
+            offset += 2;
+
+            const thisClassIndex = view.getUint16(offset, false);
+            offset += 2;
+
+            const superClassIndex = view.getUint16(offset, false);
+            offset += 2;
+
+            const className = resolveClassName(constantPool, thisClassIndex);
+
+            const interfacesCount = view.getUint16(offset, false);
+            offset += 2;
+            offset += interfacesCount * 2;
+
+            offset = skipFields(view, offset, constantPool);
+
+            const methods = parseMethods(view, offset, constantPool);
+
+            return { className, majorVersion, minorVersion, methods };
+        }
+
+        function parseConstantPool(view, offset) {
+            const constantPoolCount = view.getUint16(offset, false);
+            offset += 2;
+
+            const constantPool = [null];
+            let index = 1;
+
+            while (index < constantPoolCount) {
+                const tag = view.getUint8(offset);
+                offset += 1;
+
+                let entry;
+
+                switch (tag) {
+                    case 1:
+                        const length = view.getUint16(offset, false);
+                        offset += 2;
+                        const bytes = new Uint8Array(view.buffer, view.byteOffset + offset, length);
+                        const value = new TextDecoder().decode(bytes);
+                        offset += length;
+                        entry = { tag, value };
+                        break;
+                    case 3:
+                    case 4:
+                        offset += 4;
+                        entry = { tag };
+                        break;
+                    case 5:
+                    case 6:
+                        offset += 8;
+                        entry = { tag };
+                        constantPool.push(entry);
+                        constantPool.push(null);
+                        index += 2;
+                        continue;
+                    case 7:
+                        const nameIndex = view.getUint16(offset, false);
+                        offset += 2;
+                        entry = { tag, nameIndex };
+                        break;
+                    case 8:
+                        offset += 2;
+                        entry = { tag };
+                        break;
+                    case 9:
+                    case 10:
+                    case 11:
+                        offset += 4;
+                        entry = { tag };
+                        break;
+                    case 12:
+                        const ni = view.getUint16(offset, false);
+                        offset += 2;
+                        const di = view.getUint16(offset, false);
+                        offset += 2;
+                        entry = { tag, nameIndex: ni, descriptorIndex: di };
+                        break;
+                    case 15:
+                        offset += 3;
+                        entry = { tag };
+                        break;
+                    case 16:
+                        offset += 2;
+                        entry = { tag };
+                        break;
+                    case 17:
+                    case 18:
+                        offset += 4;
+                        entry = { tag };
+                        break;
+                    case 19:
+                    case 20:
+                        offset += 2;
+                        entry = { tag };
+                        break;
+                    default:
+                        throw new Error(`Unknown constant pool tag: ${tag}`);
+                }
+
+                constantPool.push(entry);
+                index += 1;
+            }
+
+            return { constantPool, newOffset: offset };
+        }
+
+        function resolveClassName(constantPool, classIndex) {
+            const classEntry = constantPool[classIndex];
+            if (!classEntry || classEntry.tag !== 7) {
+                throw new Error(`Invalid class reference at index ${classIndex}`);
+            }
+            const nameEntry = constantPool[classEntry.nameIndex];
+            if (!nameEntry || nameEntry.tag !== 1) {
+                throw new Error(`Invalid name reference`);
+            }
+            return nameEntry.value;
+        }
+
+        function resolveUtf8(constantPool, index) {
+            const entry = constantPool[index];
+            if (!entry || entry.tag !== 1) {
+                throw new Error(`Invalid UTF8 reference at index ${index}`);
+            }
+            return entry.value;
+        }
+
+        function skipFields(view, offset, constantPool) {
+            const fieldsCount = view.getUint16(offset, false);
+            offset += 2;
+
+            for (let i = 0; i < fieldsCount; i++) {
+                offset += 6;
+                offset = skipAttributes(view, offset);
+            }
+
+            return offset;
+        }
+
+        function skipAttributes(view, offset) {
+            const attributesCount = view.getUint16(offset, false);
+            offset += 2;
+
+            for (let i = 0; i < attributesCount; i++) {
+                offset += 2;
+                const attributeLength = view.getUint32(offset, false);
+                offset += 4;
+                offset += attributeLength;
+            }
+
+            return offset;
+        }
+
+        function parseMethods(view, offset, constantPool) {
+            const methodsCount = view.getUint16(offset, false);
+            offset += 2;
+
+            const methods = [];
+
+            for (let i = 0; i < methodsCount; i++) {
+                const accessFlags = view.getUint16(offset, false);
+                offset += 2;
+
+                const nameIndex = view.getUint16(offset, false);
+                offset += 2;
+
+                const descriptorIndex = view.getUint16(offset, false);
+                offset += 2;
+
+                const name = resolveUtf8(constantPool, nameIndex);
+                const descriptor = resolveUtf8(constantPool, descriptorIndex);
+
+                const { bytecodeSize, newOffset } = parseMethodAttributes(view, offset, constantPool);
+                offset = newOffset;
+
+                methods.push({ name, descriptor, bytecodeSize });
+            }
+
+            return methods;
+        }
+
+        function parseMethodAttributes(view, offset, constantPool) {
+            const attributesCount = view.getUint16(offset, false);
+            offset += 2;
+
+            let bytecodeSize = 0;
+
+            for (let i = 0; i < attributesCount; i++) {
+                const attributeNameIndex = view.getUint16(offset, false);
+                offset += 2;
+
+                const attributeLength = view.getUint32(offset, false);
+                offset += 4;
+
+                const attributeName = resolveUtf8(constantPool, attributeNameIndex);
+
+                if (attributeName === 'Code') {
+                    const codeLength = view.getUint32(offset + 4, false);
+                    bytecodeSize = codeLength;
+                }
+
+                offset += attributeLength;
+            }
+
+            return { bytecodeSize, newOffset: offset };
+        }
+
+        // =====================================================================
+        // JAR Parser
+        // =====================================================================
+
+        async function parseJar(jarBuffer, options = {}) {
+            const { onProgress } = options;
+            const startTime = performance.now();
+
+            let zip;
+            try {
+                zip = await JSZip.loadAsync(jarBuffer);
+            } catch (e) {
+                throw new Error('Invalid JAR file: not a valid ZIP archive');
+            }
+
+            const classFiles = [];
+            zip.forEach((relativePath, zipEntry) => {
+                if (relativePath.endsWith('.class') && !zipEntry.dir) {
+                    classFiles.push({ path: relativePath, entry: zipEntry });
+                }
+            });
+
+            if (classFiles.length === 0) {
+                return {
+                    methods: [],
+                    stats: {
+                        classesScanned: 0,
+                        methodsFound: 0,
+                        parseTimeMs: performance.now() - startTime,
+                    },
+                    warnings: ['No .class files found in JAR'],
+                };
+            }
+
+            const allMethods = [];
+            const warnings = [];
+            let processedClasses = 0;
+
+            for (const { path, entry } of classFiles) {
+                try {
+                    const classBuffer = await entry.async('arraybuffer');
+                    const result = parseClassFile(classBuffer);
+
+                    const classNameDot = result.className.replace(/\//g, '.');
+
+                    for (const method of result.methods) {
+                        allMethods.push({
+                            className: classNameDot,
+                            methodName: method.name,
+                            descriptor: method.descriptor,
+                            bytecodeSize: method.bytecodeSize,
+                        });
+                    }
+                } catch (e) {
+                    warnings.push(`Failed to parse ${path}: ${e.message}`);
+                }
+
+                processedClasses++;
+                if (onProgress) {
+                    onProgress(processedClasses, classFiles.length);
+                }
+            }
+
+            allMethods.sort((a, b) => b.bytecodeSize - a.bytecodeSize);
+
+            return {
+                methods: allMethods,
+                stats: {
+                    classesScanned: classFiles.length,
+                    methodsFound: allMethods.length,
+                    parseTimeMs: performance.now() - startTime,
+                },
+                warnings,
+            };
+        }
+
+        // =====================================================================
+        // UI Logic
+        // =====================================================================
+
+        let currentResults = null;
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const errorDisplay = document.getElementById('errorDisplay');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const statsDisplay = document.getElementById('statsDisplay');
+        const classCount = document.getElementById('classCount');
+        const methodCount = document.getElementById('methodCount');
+        const parseTime = document.getElementById('parseTime');
+        const warningsDisplay = document.getElementById('warningsDisplay');
+        const warningsList = document.getElementById('warningsList');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsBody = document.getElementById('resultsBody');
+        const noResults = document.getElementById('noResults');
+        const topNSelect = document.getElementById('topNSelect');
+        const exportBtn = document.getElementById('exportBtn');
+
+        // Drop zone events
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        topNSelect.addEventListener('change', () => {
+            if (currentResults) {
+                displayResults(currentResults);
+            }
+        });
+
+        exportBtn.addEventListener('click', exportCSV);
+
+        function hideAll() {
+            errorDisplay.classList.remove('visible');
+            progressContainer.classList.remove('visible');
+            statsDisplay.classList.remove('visible');
+            warningsDisplay.classList.remove('visible');
+            resultsContainer.classList.remove('visible');
+        }
+
+        function showError(message) {
+            hideAll();
+            errorDisplay.textContent = message;
+            errorDisplay.classList.add('visible');
+        }
+
+        function showProgress() {
+            hideAll();
+            progressContainer.classList.add('visible');
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Processing...';
+        }
+
+        function updateProgress(processed, total) {
+            const percent = Math.round((processed / total) * 100);
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `Processing class ${processed} of ${total}...`;
+        }
+
+        async function handleFile(file) {
+            if (!file.name.endsWith('.jar')) {
+                showError('Please select a JAR file (.jar)');
+                return;
+            }
+
+            showProgress();
+
+            try {
+                const buffer = await file.arrayBuffer();
+                const result = await parseJar(buffer, {
+                    onProgress: updateProgress,
+                });
+
+                currentResults = result;
+                displayResults(result);
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        function displayResults(result) {
+            progressContainer.classList.remove('visible');
+
+            // Stats
+            classCount.textContent = `Classes: ${result.stats.classesScanned.toLocaleString()}`;
+            methodCount.textContent = `Methods: ${result.stats.methodsFound.toLocaleString()}`;
+            parseTime.textContent = `Time: ${(result.stats.parseTimeMs / 1000).toFixed(2)}s`;
+            statsDisplay.classList.add('visible');
+
+            // Warnings
+            if (result.warnings.length > 0) {
+                warningsList.innerHTML = result.warnings
+                    .slice(0, 10)
+                    .map((w) => `<li>${escapeHtml(w)}</li>`)
+                    .join('');
+                if (result.warnings.length > 10) {
+                    warningsList.innerHTML += `<li>...and ${result.warnings.length - 10} more</li>`;
+                }
+                warningsDisplay.classList.add('visible');
+            } else {
+                warningsDisplay.classList.remove('visible');
+            }
+
+            // Results table
+            const topN = parseInt(topNSelect.value, 10);
+            const topMethods = result.methods.slice(0, topN);
+
+            if (topMethods.length === 0) {
+                resultsBody.innerHTML = '';
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+                resultsBody.innerHTML = topMethods
+                    .map((m, i) => `
+                        <tr>
+                            <td class="rank">${i + 1}</td>
+                            <td class="class-name" title="${escapeHtml(m.className)}">${escapeHtml(abbreviateClassName(m.className))}</td>
+                            <td class="method-name">${escapeHtml(m.methodName)}</td>
+                            <td class="descriptor" title="${escapeHtml(m.descriptor)}">${escapeHtml(m.descriptor)}</td>
+                            <td class="size">${m.bytecodeSize.toLocaleString()}</td>
+                        </tr>
+                    `)
+                    .join('');
+            }
+
+            resultsContainer.classList.add('visible');
+        }
+
+        function abbreviateClassName(className) {
+            const parts = className.split('.');
+            if (parts.length <= 2) return className;
+            return parts.slice(0, -1).map((p) => p[0]).join('.') + '.' + parts[parts.length - 1];
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function exportCSV() {
+            if (!currentResults || currentResults.methods.length === 0) return;
+
+            const topN = parseInt(topNSelect.value, 10);
+            const methods = currentResults.methods.slice(0, topN);
+
+            let csv = 'Rank,Class,Method,Descriptor,Size (bytes)\n';
+            methods.forEach((m, i) => {
+                csv += `${i + 1},"${m.className}","${m.methodName}","${m.descriptor}",${m.bytecodeSize}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bytecode-methods.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

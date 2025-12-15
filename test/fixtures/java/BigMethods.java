@@ -1,0 +1,54 @@
+package fixtures;
+
+public class BigMethods {
+    // Generate large method through repetitive code
+    public int bigMethod() {
+        int result = 0;
+        result += 1; result += 2; result += 3; result += 4; result += 5;
+        result += 6; result += 7; result += 8; result += 9; result += 10;
+        result += 11; result += 12; result += 13; result += 14; result += 15;
+        result += 16; result += 17; result += 18; result += 19; result += 20;
+        result += 21; result += 22; result += 23; result += 24; result += 25;
+        result += 26; result += 27; result += 28; result += 29; result += 30;
+        result += 31; result += 32; result += 33; result += 34; result += 35;
+        result += 36; result += 37; result += 38; result += 39; result += 40;
+        result += 41; result += 42; result += 43; result += 44; result += 45;
+        result += 46; result += 47; result += 48; result += 49; result += 50;
+        result += 51; result += 52; result += 53; result += 54; result += 55;
+        result += 56; result += 57; result += 58; result += 59; result += 60;
+        result += 61; result += 62; result += 63; result += 64; result += 65;
+        result += 66; result += 67; result += 68; result += 69; result += 70;
+        result += 71; result += 72; result += 73; result += 74; result += 75;
+        result += 76; result += 77; result += 78; result += 79; result += 80;
+        result += 81; result += 82; result += 83; result += 84; result += 85;
+        result += 86; result += 87; result += 88; result += 89; result += 90;
+        result += 91; result += 92; result += 93; result += 94; result += 95;
+        result += 96; result += 97; result += 98; result += 99; result += 100;
+        result += 101; result += 102; result += 103; result += 104; result += 105;
+        result += 106; result += 107; result += 108; result += 109; result += 110;
+        result += 111; result += 112; result += 113; result += 114; result += 115;
+        result += 116; result += 117; result += 118; result += 119; result += 120;
+        result += 121; result += 122; result += 123; result += 124; result += 125;
+        result += 126; result += 127; result += 128; result += 129; result += 130;
+        result += 131; result += 132; result += 133; result += 134; result += 135;
+        result += 136; result += 137; result += 138; result += 139; result += 140;
+        result += 141; result += 142; result += 143; result += 144; result += 145;
+        result += 146; result += 147; result += 148; result += 149; result += 150;
+        return result;
+    }
+
+    public int smallMethod() {
+        return 42;
+    }
+
+    // Include a switch statement (generates tableswitch/lookupswitch bytecode)
+    public String switchMethod(int x) {
+        switch (x) {
+            case 0: return "zero";
+            case 1: return "one";
+            case 2: return "two";
+            case 100: return "hundred";
+            default: return "other";
+        }
+    }
+}

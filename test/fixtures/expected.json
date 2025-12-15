@@ -1,0 +1,271 @@
+{
+  "fixtures/AbstractMethods": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "abstractMethod",
+        "descriptor": "()V",
+        "codeLength": 0
+      },
+      {
+        "name": "nativeMethod",
+        "descriptor": "()V",
+        "codeLength": 0
+      },
+      {
+        "name": "concreteMethod",
+        "descriptor": "()V",
+        "codeLength": 9
+      }
+    ]
+  },
+  "fixtures/AllPrimitiveTypes": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "voidMethod",
+        "descriptor": "()V",
+        "codeLength": 1
+      },
+      {
+        "name": "byteMethod",
+        "descriptor": "()B",
+        "codeLength": 2
+      },
+      {
+        "name": "charMethod",
+        "descriptor": "()C",
+        "codeLength": 3
+      },
+      {
+        "name": "shortMethod",
+        "descriptor": "()S",
+        "codeLength": 2
+      },
+      {
+        "name": "intMethod",
+        "descriptor": "()I",
+        "codeLength": 2
+      },
+      {
+        "name": "longMethod",
+        "descriptor": "()J",
+        "codeLength": 2
+      },
+      {
+        "name": "floatMethod",
+        "descriptor": "()F",
+        "codeLength": 2
+      },
+      {
+        "name": "doubleMethod",
+        "descriptor": "()D",
+        "codeLength": 2
+      },
+      {
+        "name": "booleanMethod",
+        "descriptor": "()Z",
+        "codeLength": 2
+      },
+      {
+        "name": "intArrayMethod",
+        "descriptor": "()[I",
+        "codeLength": 4
+      },
+      {
+        "name": "multiDimMethod",
+        "descriptor": "()[[Ljava/lang/String;",
+        "codeLength": 7
+      },
+      {
+        "name": "allParamTypes",
+        "descriptor": "(BCSIJFDZLjava/lang/Object;)V",
+        "codeLength": 1
+      }
+    ]
+  },
+  "fixtures/BigMethods": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "bigMethod",
+        "descriptor": "()I",
+        "codeLength": 523
+      },
+      {
+        "name": "smallMethod",
+        "descriptor": "()I",
+        "codeLength": 3
+      },
+      {
+        "name": "switchMethod",
+        "descriptor": "(I)Ljava/lang/String;",
+        "codeLength": 59
+      }
+    ]
+  },
+  "fixtures/LambdasAndIndy": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "getSupplier",
+        "descriptor": "()Ljava/util/function/Supplier;",
+        "codeLength": 6
+      },
+      {
+        "name": "getDoubler",
+        "descriptor": "()Ljava/util/function/Function;",
+        "codeLength": 6
+      },
+      {
+        "name": "sumWithLambda",
+        "descriptor": "([I)I",
+        "codeLength": 10
+      },
+      {
+        "name": "lambda$getDoubler$0",
+        "descriptor": "(Ljava/lang/Integer;)Ljava/lang/Integer;",
+        "codeLength": 10
+      },
+      {
+        "name": "lambda$getSupplier$0",
+        "descriptor": "()Ljava/lang/String;",
+        "codeLength": 3
+      }
+    ]
+  },
+  "fixtures/NestedClasses$1": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "(Lfixtures/NestedClasses;)V",
+        "codeLength": 5
+      },
+      {
+        "name": "run",
+        "descriptor": "()V",
+        "codeLength": 9
+      }
+    ]
+  },
+  "fixtures/NestedClasses$Inner": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "(Lfixtures/NestedClasses;)V",
+        "codeLength": 5
+      },
+      {
+        "name": "innerMethod",
+        "descriptor": "()V",
+        "codeLength": 1
+      }
+    ]
+  },
+  "fixtures/NestedClasses$StaticNested": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "nestedMethod",
+        "descriptor": "()V",
+        "codeLength": 1
+      }
+    ]
+  },
+  "fixtures/NestedClasses": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "methodWithAnonymous",
+        "descriptor": "()V",
+        "codeLength": 16
+      }
+    ]
+  },
+  "fixtures/SimpleClass": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 10
+      },
+      {
+        "name": "getValue",
+        "descriptor": "()I",
+        "codeLength": 5
+      },
+      {
+        "name": "setValue",
+        "descriptor": "(I)V",
+        "codeLength": 6
+      }
+    ]
+  },
+  "fixtures/WithInterfaces": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "compareTo",
+        "descriptor": "(Lfixtures/WithInterfaces;)I",
+        "codeLength": 12
+      },
+      {
+        "name": "compareTo",
+        "descriptor": "(Ljava/lang/Object;)I",
+        "codeLength": 9
+      }
+    ]
+  },
+  "fixtures/WithLongDouble": {
+    "methods": [
+      {
+        "name": "<init>",
+        "descriptor": "()V",
+        "codeLength": 5
+      },
+      {
+        "name": "getLongValue",
+        "descriptor": "()J",
+        "codeLength": 4
+      },
+      {
+        "name": "getDoubleValue",
+        "descriptor": "()D",
+        "codeLength": 4
+      },
+      {
+        "name": "compute",
+        "descriptor": "(JD)D",
+        "codeLength": 7
+      }
+    ]
+  }
+}

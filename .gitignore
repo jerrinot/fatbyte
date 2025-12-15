@@ -1,0 +1,5 @@
+node_modules/
+test/fixtures/classes/
+test/test-fixtures.jar
+*.log
+.DS_Store
